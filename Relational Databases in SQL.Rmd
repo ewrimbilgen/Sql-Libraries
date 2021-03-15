@@ -1,0 +1,114 @@
+---
+title: "sql libraries"
+author: "Evrim Bilgen"
+date: "3/15/2021"
+output: html_document
+references: DataCamp
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Relational Database in SQL
+
+
+
+```{r }
+
+ALTER TABLE affiliations
+RENAME column organisation TO organization;
+
+-- Delete the university_professors table
+drop table university_professors;
+
+
+```
+
+### Type CASTs
+
+
+```{r }
+
+SELECT CAST(some_column AS integer)
+FROM table;
+
+```
+
+### Convert types USING a function
+
+```{r }
+
+-- Convert the values in firstname to a max. of 16 characters
+ALTER TABLE professors 
+ALTER COLUMN firstname 
+TYPE varchar(16)
+using substring(firstname from 1 for 16)
+
+```
+
+### Make your columns UNIQUE with ADD CONSTRAINT
+
+```{r }
+
+-- Make universities.university_shortname unique
+ALTER table universities
+ADD CONSTRAINT university_shortname_unq UNIQUE(university_shortname);
+```
+
+### ADD key CONSTRAINTs to the tables
+
+```{r }
+
+-- Rename the organization column to id
+alter table organizations
+rename column organization TO id;
+
+-- Make id a primary key
+ALTER TABLE organizations
+add constraint  organization_pk primary KEY (id);
+
+```
+
+### REFERENCE a table with a FOREIGN KEY
+
+```{r }
+
+-- Rename the university_shortname column
+ALTER TABLE professors
+RENAME COLUMN university_shortname TO university_id;
+
+-- Add a foreign key on professors referencing universities
+alter TABLE professors
+add constraint professors_fkey FOREIGN KEY (university_id) REFERENCES universities (id);
+
+```
+
+### Change the referential integrity behavior of a key
+
+```{r }
+
+-- Identify the correct constraint name
+SELECT constraint_name, table_name, constraint_type
+FROM information_schema.table_constraints
+WHERE constraint_type = 'FOREIGN KEY';
+
+-- Drop the right foreign key constraint
+ALTER TABLE affiliations
+DROP CONSTRAINT affiliations_organization_id_fkey;
+
+-- Add a new foreign key constraint from affiliations to organizations which cascades deletion
+ALTER TABLE affiliations
+ADD CONSTRAINT affiliations_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES organizations (id) ON DELETE CASCADE;
+
+-- Delete an organization 
+DELETE FROM organizations 
+WHERE id = 'CUREM';
+
+-- Check that no more affiliations with this organization exist
+SELECT * FROM affiliations
+WHERE organization_id = 'CUREM';
+
+```
+
+
